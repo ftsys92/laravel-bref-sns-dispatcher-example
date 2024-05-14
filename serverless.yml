@@ -1,0 +1,44 @@
+service: laravel-bref-sns-dispatcher-example
+
+provider:
+    name: aws
+    region: us-east-1
+    stage: 'sandbox'
+    environment:
+        APP_ENV: ${sls:stage}
+        APP_KEY: ${ssm:/sandbox/laravel-bref-sns-dispatcher-example/app-key}
+        SNS_TOPIC_ARN: !Ref EventsTopic
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - SNS:Publish
+        Resource:
+          - !Ref EventsTopic
+
+package:
+    patterns:
+        - '!node_modules/**'
+        - '!public/storage'
+        - '!resources/assets/**'
+        - '!storage/**'
+        - '!tests/**'
+        - '!.env'
+
+functions:
+    web:
+        handler: public/index.php
+        runtime: php-82-fpm
+        timeout: 28
+        events:
+            - httpApi: '*'
+
+resources:
+  Resources:
+    EventsTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: ${self:service}-${self:provider.stage}-sns-events
+
+plugins:
+    # We need to include the Bref plugin
+    - ./vendor/bref/bref

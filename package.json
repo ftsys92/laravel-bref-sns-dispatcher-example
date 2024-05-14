@@ -1,0 +1,8 @@
+{
+    "private": true,
+    "type": "module",
+    "scripts": {},
+    "devDependencies": {
+        "serverless-lift": "^1.28.1"
+    }
+}
